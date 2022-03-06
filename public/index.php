@@ -9,18 +9,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 return (new class(DICBuilder::getInstance()) {
-    /**
-     * @param DIC $container
-     */
     public function __construct(private DIC $container)
     {
         $this->container->set(Request::class, fn(): Request => Request::createFromGlobals());
         $this->container->set(JsonResponse::class, JsonResponse::class);
     }
 
-    /**
-     * @return JsonResponse
-     */
     public function __invoke(): JsonResponse
     {
         return $this->container->call([Application::class, 'handle']);

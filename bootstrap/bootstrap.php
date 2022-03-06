@@ -1,32 +1,23 @@
 <?php
 
+use AliReaza\Atomic\Containers\DotEnvContainer;
+use AliReaza\Atomic\Containers\ErrorHandlerContainer;
 use AliReaza\DependencyInjection\DependencyInjectionContainer as DIC;
 use AliReaza\DependencyInjection\DependencyInjectionContainerBuilder as DICBuilder;
+use AliReaza\DotEnv\DotEnv;
 use AliReaza\ErrorHandler\ErrorHandler;
-use AliReaza\ErrorHandler\Render\JsonResponse as RenderErrorHandler;
 
 return (new class(DICBuilder::getInstance()) {
     private ErrorHandler $error_handler;
 
-    /**
-     * @param DIC $container
-     */
     public function __construct(private DIC $container)
     {
-        $this->container->set(ErrorHandler::class, function (): ErrorHandler {
-            $error_handler = new ErrorHandler();
-            $error_handler->register(true, false);
-            $error_handler->setRender(RenderErrorHandler::class);
-
-            return $error_handler;
-        });
-
+        $this->container->set(ErrorHandler::class, (new ErrorHandlerContainer())());
         $this->error_handler = $this->container->resolve(ErrorHandler::class);
+
+        $this->container->set(DotEnv::class, (new DotEnvContainer())());
     }
 
-    /**
-     * @return void
-     */
     public function __invoke(): void
     {
         $this->error_handler->setDebug(env('APP_DEBUG', false));
